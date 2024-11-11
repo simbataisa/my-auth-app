@@ -1,8 +1,9 @@
+// src/pages/ProfilePage.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { mockApi } from "../api/mockApi";
 import { Profile } from "../types/auth";
+import { mockApi } from "../api/mockApi";
 
 interface LoadingState {
   status: "idle" | "loading" | "error" | "success";
@@ -20,14 +21,23 @@ export const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     const loadProfile = async () => {
-      if (!id) return;
+      // Return early if no id is provided
+      if (!id) {
+        setLoadingState({
+          status: "error",
+          error: "Profile ID is required",
+        });
+        return;
+      }
 
       setLoadingState({ status: "loading" });
       try {
         const token = localStorage.getItem("token");
-        if (!token) throw new Error("No authentication token found");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
 
-        const profileData = await mockApi.getProfile(parseInt(id), token);
+        const profileData = await mockApi.getProfile(parseInt(id, 10), token);
         setProfile(profileData);
         setLoadingState({ status: "success" });
       } catch (error) {
@@ -86,17 +96,19 @@ export const ProfilePage: React.FC = () => {
     );
   }
 
-  if (!profile) {
+  if (!profile || !user || !id) {
     return null;
   }
+
+  const isOwnProfile = user.id === parseInt(id, 10);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {/* Header */}
         <div className="bg-gray-800 text-white p-6">
-          <h1 className="text-3xl font-bold">{user?.name}</h1>
-          <p className="text-gray-300 mt-2">{user?.role}</p>
+          <h1 className="text-3xl font-bold">{user.name}</h1>
+          <p className="text-gray-300 mt-2">{user.role}</p>
         </div>
 
         {/* Profile Content */}
@@ -131,13 +143,13 @@ export const ProfilePage: React.FC = () => {
           </div>
 
           {/* Edit Profile Button (only shown if viewing own profile) */}
-          {user?.id === parseInt(id) && (
+          {isOwnProfile && (
             <div className="mt-8">
               <button
                 onClick={() => {
                   /* Add edit functionality */
                 }}
-                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
               >
                 Edit Profile
               </button>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
 import { ProjectSetting } from "@/types/project";
 
 interface SettingsGroup {
@@ -43,7 +42,6 @@ const MOCK_SETTINGS: ProjectSetting[] = [
 ];
 
 export const ProjectSettingsPage: React.FC = () => {
-  const { user } = useAuth();
   const [settings, setSettings] = useState<ProjectSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState<
